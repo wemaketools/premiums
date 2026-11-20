@@ -1,0 +1,7 @@
+tenant_id,client_id,name,segment,region,is_corporate
+TEST,CLI-001,Dithaba Traders (fictional),SME,South-East,false
+TEST,CLI-002,Kgale Fleet (fictional),Corporate,South-East,true
+TEST,CLI-003,Kgosi Family (fictional),SME,South-East,false
+TEST,CLI-004,Pula Gardens (fictional),Corporate,South-East,true
+TEST,CLI-005,Metsi Wholesale (fictional),SME,South-East,false
+TEST,CLI-006,Naledi Engineering (fictional),Corporate,South-East,true

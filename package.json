@@ -1,0 +1,44 @@
+{
+  "name": "premiums",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Premium Collections Control Tower: premium due, overdue, unapplied cash, failed payment attempts and recovery actions for general insurers. A static SPA with typed contracts, a collections rules engine and an in-browser mock API over versioned synthetic fixtures.",
+  "type": "module",
+  "workspaces": [
+    "src/ui",
+    "e2e_tests"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @premiums/ui",
+    "preview": "npm run preview --workspace @premiums/ui",
+    "typecheck": "tsc -p tsconfig.server.json",
+    "typecheck:ui": "npm run typecheck --workspace @premiums/ui",
+    "typecheck:e2e": "npm run typecheck --workspace @premiums/e2e",
+    "lint": "eslint --max-warnings 0 src/contracts src/mock-api src/read-model src/rules scripts",
+    "lint:ui": "npm run lint --workspace @premiums/ui",
+    "format:ui": "npm run format --workspace @premiums/ui",
+    "build": "npm run typecheck && npm run build --workspace @premiums/ui",
+    "test": "vitest run",
+    "test:ui": "npm run test --workspace @premiums/ui",
+    "test:e2e": "npm run test --workspace @premiums/e2e",
+    "ci:security": "node --experimental-strip-types --no-warnings scripts/ci/scan-secrets.ts && node --experimental-strip-types --no-warnings scripts/ci/scan-bundle.ts",
+    "verify": "npm run typecheck && npm run typecheck:ui && npm run typecheck:e2e && npm run lint && npm run lint:ui && npm test && npm run test:ui && npm run build"
+  },
+  "dependencies": {
+    "decimal.js": "^10.6.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.0",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "jsdom": "^30.1.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.2"
+  }
+}

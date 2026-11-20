@@ -9,11 +9,43 @@ ai/converse/review/runs/
 .DS_Store
 .claude/settings.local.json
 
-# Vercel CLI state
-.vercel/
+# Dependencies
+node_modules/
 
 # Environment files: only placeholder catalogs are committed
 .env
 .env.*
 !.env.example
 !.env.local.example
+
+# Build output
+dist/
+dist-e2e/
+*.tsbuildinfo
+
+# Vercel CLI state
+.vercel/
+
+# Throwaway TypeScript files
+*.tmp.ts
+
+# Test output
+.test-results/
+coverage/
+e2e_tests/test-results/
+e2e_tests/playwright-report/
+e2e_tests/blob-report/
+e2e_tests/.cache/
+
+# Agent scratch space (screenshots, probes)
+.qa-scratch/
+
+# Logs
+*.log
+
+# OS and editor files
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json

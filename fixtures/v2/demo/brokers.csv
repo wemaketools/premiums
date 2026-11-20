@@ -1,0 +1,4 @@
+tenant_id,broker_id,name,channel,owner_user_id,branch
+DEMO,BRK-01,Kopano Brokers (fictional),BROKER,USR-FIN,Gaborone
+DEMO,BRK-02,Tsholofelo Risk Advisors (fictional),BROKER,USR-FIN,Gaborone
+DEMO,BRK-03,Direct Sales,DIRECT,USR-FIN,Gaborone

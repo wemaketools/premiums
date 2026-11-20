@@ -1,0 +1,174 @@
+/*
+ * Premium Collections design tokens. The palette is copied from the suite's other products with the --tiq-* prefix renamed to
+ * --prm-*, so TenderIQ, QuoteIQ and Premium Collections read as one product family. Keep the hex values in step with them.
+ *
+ * Every colour and spacing value the components use comes from these --prm-* custom properties. Components never
+ * contain a raw hex value or a literal pixel gap.
+ *
+ * - Charts use the --prm-chart-* palette, which is built from the semantic tokens so it follows the theme.
+ * - --prm-sidebar-text-strong is the sidebar-legible text colour for the brand name, the user name and hovered nav
+ *   items; accent-contrast is almost invisible on the dark-theme sidebar.
+ * - Half-step spacing tokens (space-0-5, space-1-5, space-2-5) replace literal 2px, 6px and 10px gaps.
+ *
+ * Theme selection: the data-theme attribute on <html> (light | dark), remembered in the browser. Printing always uses the
+ * light tokens.
+ */
+
+:root,
+html[data-theme='light'] {
+  color-scheme: light;
+
+  /* Surfaces and shell */
+  --prm-surface-sidebar: #0f2a3f;
+  --prm-surface-app: #f4f6f8;
+  --prm-surface-card: #ffffff;
+  --prm-surface-raised: #ffffff;
+  --prm-surface-hover: #f8fafb;
+  --prm-surface-inset: #eef2f5;
+  --prm-border-subtle: #e3e8ee;
+  --prm-border-strong: #d0d9e0;
+  --prm-text-primary: #1b2733;
+  --prm-text-secondary: #5b6b7a;
+  --prm-text-on-sidebar: #d7e3ec;
+  --prm-sidebar-text-strong: #ffffff;
+  --prm-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --prm-sidebar-separator: rgba(255, 255, 255, 0.1);
+
+  /* Brand and accent */
+  --prm-accent: #159aa6;
+  --prm-accent-strong: #0f7d87;
+  --prm-accent-contrast: #ffffff;
+  --prm-accent-soft: #e3f4f5;
+  /* Solid accent fill behind --prm-on-solid text (primary buttons, active nav pill, avatar): WCAG AA. */
+  --prm-accent-fill: #10808a;
+  --prm-accent-fill-hover: #0c6b74;
+  /* Accent text on accent-soft (chips, active vertical tab): WCAG AA. */
+  --prm-accent-text: #0d727b;
+
+  /* Effects */
+  --prm-shadow-card: 0 1px 2px rgba(20, 40, 50, 0.04), 0 6px 18px rgba(20, 40, 50, 0.06);
+  --prm-shadow-raised: 0 8px 30px rgba(20, 40, 50, 0.14);
+  --prm-scrim: rgba(15, 30, 35, 0.42);
+  --prm-focus-ring: 0 0 0 2px var(--prm-surface-card), 0 0 0 4px var(--prm-accent);
+  /* A data URI cannot read CSS variables, so the chevron stroke (text-secondary) is baked per theme. */
+  --prm-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235b6b7a' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+  /* Semantic colours */
+  --prm-success: #1e8e5a;
+  --prm-success-soft: #e1f3ea;
+  --prm-warning: #c9820a;
+  --prm-warning-soft: #faf0dc;
+  --prm-danger: #c0392b;
+  --prm-danger-soft: #f8e2df;
+  --prm-info: #2a6fb0;
+  --prm-info-soft: #e2ecf5;
+  --prm-neutral: #6b7a88;
+  --prm-neutral-soft: #e9edf0;
+  /* Text on the matching -soft background (chips, banners, deltas): WCAG AA 4.5:1 (the base colours stay for
+     icons, bars and borders). */
+  --prm-success-text: #17774b;
+  --prm-warning-text: #8f5c04;
+  --prm-danger-text: #ab3326;
+  --prm-info-text: #25649f;
+  --prm-neutral-text: #56636f;
+
+  /* Text on a solid semantic or accent fill (buttons, count badges) */
+  --prm-on-solid: #ffffff;
+}
+
+/* Printing is always light, so the dark block does not apply to print media and the light tokens above do. */
+@media not print {
+  html[data-theme='dark'] {
+    color-scheme: dark;
+
+    --prm-surface-sidebar: #0b1e2e;
+    --prm-surface-app: #0e1621;
+    --prm-surface-card: #16232f;
+    --prm-surface-raised: #1c2b39;
+    --prm-surface-hover: #1b2a37;
+    --prm-surface-inset: #101c27;
+    --prm-border-subtle: #263644;
+    --prm-border-strong: #35485a;
+    --prm-text-primary: #eaf0f5;
+    --prm-text-secondary: #9db0bf;
+    --prm-text-on-sidebar: #d7e3ec;
+    --prm-sidebar-text-strong: #ffffff;
+    --prm-sidebar-hover: rgba(255, 255, 255, 0.07);
+    --prm-sidebar-separator: rgba(255, 255, 255, 0.1);
+
+    --prm-accent: #2fb6c2;
+    --prm-accent-strong: #49c5d0;
+    --prm-accent-contrast: #08202a;
+    --prm-accent-soft: #123b41;
+    --prm-accent-fill: #2fb6c2;
+    --prm-accent-fill-hover: #49c5d0;
+    --prm-accent-text: #49c5d0;
+
+    --prm-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --prm-shadow-raised: 0 12px 40px rgba(0, 0, 0, 0.55);
+    --prm-scrim: rgba(2, 8, 12, 0.6);
+    --prm-focus-ring: 0 0 0 2px var(--prm-surface-card), 0 0 0 4px var(--prm-accent);
+    --prm-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239db0bf' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+
+    --prm-success: #3fbf86;
+    --prm-success-soft: #163429;
+    --prm-warning: #e3a93c;
+    --prm-warning-soft: #3a2e14;
+    --prm-danger: #e56b5d;
+    --prm-danger-soft: #3a1f1a;
+    --prm-info: #5aa0dd;
+    --prm-info-soft: #17293a;
+    --prm-neutral: #8497a5;
+    --prm-neutral-soft: #24313c;
+    --prm-success-text: #3fbf86;
+    --prm-warning-text: #e3a93c;
+    --prm-danger-text: #e56b5d;
+    --prm-info-text: #5aa0dd;
+    --prm-neutral-text: #93a6b4;
+
+    --prm-on-solid: #08202a;
+  }
+}
+
+:root {
+  /* Typography (fonts are self-hosted) */
+  --prm-font-sans: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --prm-font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+
+  /* Spacing: 4px base scale plus the half steps used by dense controls */
+  --prm-space-0-5: 2px;
+  --prm-space-1: 4px;
+  --prm-space-1-5: 6px;
+  --prm-space-2: 8px;
+  --prm-space-2-5: 10px;
+  --prm-space-3: 12px;
+  --prm-space-4: 16px;
+  --prm-space-5: 24px;
+  --prm-space-6: 32px;
+  --prm-space-7: 48px;
+
+  --prm-radius-sm: 6px;
+  --prm-radius-control: 10px;
+  --prm-radius-card: 10px;
+  --prm-radius-menu: 12px;
+  --prm-radius-dialog: 16px;
+  --prm-radius-chip: 999px;
+
+  /* Shell layout (rail below 1280px, drawer below 768px) */
+  --prm-sidebar-width: 244px;
+  --prm-sidebar-rail-width: 72px;
+  --prm-topbar-height: 64px;
+  --prm-prototype-banner-height: 28px;
+  --prm-content-max-width: 1680px;
+
+  /* Chart palette, derived from the semantic tokens so it follows the theme */
+  --prm-chart-1: var(--prm-accent);
+  --prm-chart-2: var(--prm-info);
+  --prm-chart-3: var(--prm-success);
+  --prm-chart-4: var(--prm-warning);
+  --prm-chart-5: var(--prm-neutral);
+  --prm-chart-6: var(--prm-danger);
+  --prm-chart-grid: var(--prm-border-subtle);
+  --prm-chart-axis: var(--prm-text-secondary);
+  --prm-chart-track: var(--prm-surface-inset);
+}

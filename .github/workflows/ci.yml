@@ -1,0 +1,57 @@
+# Premium Collections CI: one `verify` job. Typecheck, lint and unit tests of every layer, the production build, the
+# security scans and the Playwright acceptance suite (COL-AT-01 to 12) against the production build.
+# App deploys are not a CI step: Vercel's Git integration builds on push.
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck, lint, unit tests and build
+        run: npm run verify
+
+      - name: Security scans (tracked-file secrets, production bundle)
+        run: npm run ci:security
+
+      - name: Install the Playwright browser
+        working-directory: e2e_tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Acceptance suite (Playwright on the production build)
+        run: npm run test:e2e
+
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: e2e_tests/playwright-report
+          retention-days: 7

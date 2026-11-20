@@ -1,0 +1,35 @@
+{
+  "as_of": "2026-10-21",
+  "TEST": {
+    "premium_invoices": 6,
+    "issued_BWP": 48000,
+    "allocated_BWP": 14000,
+    "gross_unpaid_BWP": 34000,
+    "overdue_BWP": 29000,
+    "unapplied_BWP": 1500,
+    "received_cash_October_2026_BWP": 7500,
+    "aging_unpaid_BWP": {
+      "current": 5000,
+      "1-30": 8000,
+      "31-60": 4000,
+      "61-90": 10000,
+      ">90": 7000
+    },
+    "claims": 6,
+    "open_claims": 5,
+    "closed_claims": 1,
+    "paid_to_date_BWP": 9000,
+    "outstanding_reserve_BWP": 68000,
+    "gross_incurred_BWP": 77000,
+    "claim_stages_open": {
+      "Assessment": 2,
+      "Triage": 1,
+      "Approved": 1,
+      "New": 1
+    }
+  },
+  "DEMO": {
+    "invoice_count": 36,
+    "claims_count": 30
+  }
+}

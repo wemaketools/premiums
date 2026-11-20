@@ -1,0 +1,4 @@
+tenant_id,supplier_id,name,service_type,active
+DEMO,SUP-01,Kweneng Assessors (fictional),Assessor,true
+DEMO,SUP-02,Mma-Motor Repairs (fictional),Repairer,true
+DEMO,SUP-03,Pula Survey Specialists (fictional),Loss Adjuster,true

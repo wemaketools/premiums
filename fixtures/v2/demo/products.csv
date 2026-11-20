@@ -1,0 +1,5 @@
+tenant_id,product_id,class_of_business,product_name,currency
+DEMO,PRD-01,Motor,Comprehensive Motor,BWP
+DEMO,PRD-02,Property,Property All Risk,BWP
+DEMO,PRD-03,Commercial,Business Package,BWP
+DEMO,PRD-04,Personal Accident,Personal Accident,BWP

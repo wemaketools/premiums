@@ -1,0 +1,12 @@
+tenant_id,event_id,claim_id,event_at,from_stage,to_stage,reason,actor_id
+TEST,EVT-CLM-101-1,CLM-101,2026-10-01,,New,Reported,USR-CLM
+TEST,EVT-CLM-101-2,CLM-101,2026-10-03,New,Assessment,Progressed,USR-CLM
+TEST,EVT-CLM-102-1,CLM-102,2026-09-01,,New,Reported,USR-CLM
+TEST,EVT-CLM-102-2,CLM-102,2026-09-03,New,Triage,Progressed,USR-CLM
+TEST,EVT-CLM-103-1,CLM-103,2026-10-10,,New,Reported,USR-CLM
+TEST,EVT-CLM-103-2,CLM-103,2026-10-15,New,Closed,Progressed,USR-CLM
+TEST,EVT-CLM-104-1,CLM-104,2026-10-15,,New,Reported,USR-CLM
+TEST,EVT-CLM-104-2,CLM-104,2026-10-20,New,Approved,Progressed,USR-CLM
+TEST,EVT-CLM-105-1,CLM-105,2026-10-20,,New,Reported,USR-CLM
+TEST,EVT-CLM-106-1,CLM-106,2026-09-25,,New,Reported,USR-CLM
+TEST,EVT-CLM-106-2,CLM-106,2026-09-30,New,Assessment,Progressed,USR-CLM

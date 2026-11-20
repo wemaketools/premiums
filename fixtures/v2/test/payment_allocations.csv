@@ -1,0 +1,4 @@
+tenant_id,allocation_id,receipt_id,invoice_id,allocated_amount,posted_at
+TEST,ALLOC-001,RCP-001,INV-001,6000,2026-09-20
+TEST,ALLOC-002,RCP-002,INV-003,2000,2026-08-15
+TEST,ALLOC-003,RCP-003,INV-005,6000,2026-10-03

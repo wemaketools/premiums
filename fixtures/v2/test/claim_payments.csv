@@ -1,0 +1,3 @@
+tenant_id,claim_payment_id,claim_id,paid_at,paid_amount,currency,payment_ref,status
+TEST,CPAY-CLM-102,CLM-102,2026-09-22,5000,BWP,SYN-PAY-CLM-102,POSTED
+TEST,CPAY-CLM-103,CLM-103,2026-10-13,4000,BWP,SYN-PAY-CLM-103,POSTED

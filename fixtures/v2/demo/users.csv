@@ -1,0 +1,6 @@
+tenant_id,user_id,display_name,role,team
+DEMO,USR-FIN,Tiro Demo,Finance Officer,Finance
+DEMO,USR-CFO,Executive Demo,Executive Viewer,Executive
+DEMO,USR-CLM,Boitumelo Demo,Claims Handler,Claims
+DEMO,USR-SUP,Mpho Demo,Claims Supervisor,Claims
+DEMO,USR-DEMO,Builder Demo,Demo Admin,Product

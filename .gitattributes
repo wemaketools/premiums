@@ -1,2 +1,13 @@
 ai/converse/review/ledger.ndjson merge=union
 ai/converse/review/coverage.ndjson merge=union
+
+# LF everywhere.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.svg text
+*.woff2 binary
+*.pdf binary
+*.zip binary

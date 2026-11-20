@@ -1,0 +1,45 @@
+{
+  "as_of": "2026-10-21",
+  "timezone": "Africa/Gaborone",
+  "currency": "BWP",
+  "precision": "decimal(18,2)",
+  "collections": {
+    "aging_buckets": [
+      "current_or_not_due",
+      "1-30",
+      "31-60",
+      "61-90",
+      ">90"
+    ],
+    "overdue_30_review_days": 30,
+    "lapse_review_days": 60,
+    "repeat_failed_attempts_rolling_days": 30,
+    "repeat_failed_attempt_count": 2
+  },
+  "claims": {
+    "stage_sla_business_days": {
+      "New": 2,
+      "Triage": 3,
+      "Assessment": 5,
+      "Negotiation": 5,
+      "Approved": 5,
+      "Settlement": 3
+    },
+    "business_days": [
+      "MON",
+      "TUE",
+      "WED",
+      "THU",
+      "FRI"
+    ],
+    "holidays_excluded": false,
+    "supplier_wait_target_business_days": 5,
+    "material_reserve_delta_absolute_BWP": 5000,
+    "material_reserve_delta_percent": 30,
+    "high_value_incurred_BWP": 25000
+  },
+  "fixture_testing": {
+    "tenant": "TEST",
+    "isolate_from_demo": true
+  }
+}

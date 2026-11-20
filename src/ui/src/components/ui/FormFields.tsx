@@ -1,0 +1,762 @@
+/**
+ * Form fields: every input has a visible label, a required marker, an optional
+ * hint and an error line; an invalid input carries `aria-invalid="true"` and is described by its error.
+ *
+ * Values are strings (or string arrays) exactly as entered. Money and numbers stay decimal STRINGS; dates are
+ * `YYYY-MM-DD`; DateTimeInput produces a UTC instant from a wall time entered in an explicit official zone.
+ */
+import { useId, useState } from 'react';
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from 'react';
+
+import type { FieldError } from '../../api/problem';
+
+import { officialTimeParts } from '../../lib/format';
+import { t } from '../../lib/i18n';
+import { instantToWallTime, wallTimeToInstant } from '../../lib/zonedTime';
+import { Banner } from './Banner';
+
+// ---------------------------------------------------------------------------------------------------------
+// Field shell
+// ---------------------------------------------------------------------------------------------------------
+
+interface FieldShellProps {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly required?: boolean;
+  readonly hint?: ReactNode;
+  readonly error?: string;
+  readonly className?: string;
+  readonly children: ReactNode;
+}
+
+function FieldShell({ id, label, required, hint, error, className, children }: FieldShellProps) {
+  return (
+    <div className={className === undefined ? 'prm-field' : `prm-field ${className}`}>
+      <label htmlFor={id}>
+        {label}
+        {required === true && (
+          <span className="prm-required" aria-hidden="true">
+            *
+          </span>
+        )}
+      </label>
+      {children}
+      <FieldMessages id={id} hint={hint} error={error} />
+    </div>
+  );
+}
+
+/** The hint and error lines under a field; `describedBy` names the same ids. */
+function FieldMessages({
+  id,
+  hint,
+  error,
+}: {
+  readonly id: string;
+  readonly hint: ReactNode | undefined;
+  readonly error: string | undefined;
+}) {
+  return (
+    <>
+      {hint !== undefined && (
+        <p className="prm-field-hint" id={`${id}-hint`}>
+          {hint}
+        </p>
+      )}
+      {error !== undefined && (
+        <p className="prm-field-error" id={`${id}-error`}>
+          {error}
+        </p>
+      )}
+    </>
+  );
+}
+
+function describedBy(id: string, hint: unknown, error: string | undefined): string | undefined {
+  const ids = [
+    hint !== undefined ? `${id}-hint` : null,
+    error !== undefined ? `${id}-error` : null,
+  ].filter((value): value is string => value !== null);
+  return ids.length === 0 ? undefined : ids.join(' ');
+}
+
+interface CommonFieldProps {
+  readonly label: ReactNode;
+  readonly hint?: ReactNode;
+  readonly error?: string;
+  readonly required?: boolean;
+  /** Extra class on the field wrapper, for example `prm-form-full`. */
+  readonly fieldClassName?: string;
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Text
+// ---------------------------------------------------------------------------------------------------------
+
+export interface TextFieldProps
+  extends
+    CommonFieldProps,
+    Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'required'> {
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  /** A unit shown after the input, for example `BWP`. */
+  readonly suffix?: string;
+}
+
+export function TextField({
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+  value,
+  onChange,
+  id: givenId,
+  type = 'text',
+  suffix,
+  ...rest
+}: TextFieldProps) {
+  const generated = useId();
+  const id = givenId ?? generated;
+  const input = (
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      required={required}
+      aria-required={required || undefined}
+      aria-invalid={error !== undefined || undefined}
+      aria-describedby={describedBy(id, hint, error)}
+      {...rest}
+    />
+  );
+  return (
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      className={fieldClassName}
+    >
+      {suffix === undefined ? (
+        input
+      ) : (
+        <div className="prm-input-group">
+          {input}
+          <span className="prm-input-addon">{suffix}</span>
+        </div>
+      )}
+    </FieldShell>
+  );
+}
+
+export interface TextAreaProps
+  extends
+    CommonFieldProps,
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange' | 'required'> {
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+}
+
+export function TextArea({
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+  value,
+  onChange,
+  id: givenId,
+  rows = 4,
+  ...rest
+}: TextAreaProps) {
+  const generated = useId();
+  const id = givenId ?? generated;
+  return (
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      className={fieldClassName}
+    >
+      <textarea
+        id={id}
+        rows={rows}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        required={required}
+        aria-required={required || undefined}
+        aria-invalid={error !== undefined || undefined}
+        aria-describedby={describedBy(id, hint, error)}
+        {...rest}
+      />
+    </FieldShell>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Choices
+// ---------------------------------------------------------------------------------------------------------
+
+export interface SelectOption {
+  readonly value: string;
+  readonly label: string;
+  readonly disabled?: boolean;
+}
+
+export interface SelectProps
+  extends
+    CommonFieldProps,
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange' | 'required' | 'multiple'> {
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly options: readonly SelectOption[];
+  /** An empty first option, for example "All statuses" in a filter or "Select…" in a form. */
+  readonly placeholder?: string;
+  /** The options are still on their way: the select is disabled and its empty option reads "Loading…". */
+  readonly loading?: boolean;
+}
+
+export function Select({
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+  value,
+  onChange,
+  options,
+  placeholder,
+  loading = false,
+  id: givenId,
+  ...rest
+}: SelectProps) {
+  const generated = useId();
+  const id = givenId ?? generated;
+  return (
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      className={fieldClassName}
+    >
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        required={required}
+        aria-required={required || undefined}
+        aria-invalid={error !== undefined || undefined}
+        aria-describedby={describedBy(id, hint, error)}
+        aria-busy={loading || undefined}
+        {...rest}
+        disabled={loading || rest.disabled}
+      >
+        {(loading || placeholder !== undefined) && (
+          <option value="">{loading ? t('ui.loading') : placeholder}</option>
+        )}
+        {options.map((option) => (
+          <option key={option.value} value={option.value} disabled={option.disabled}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </FieldShell>
+  );
+}
+
+export interface MultiSelectProps extends CommonFieldProps {
+  readonly value: readonly string[];
+  readonly onChange: (value: string[]) => void;
+  readonly options: readonly SelectOption[];
+  readonly disabled?: boolean;
+}
+
+/** Several choices as a labelled group of checkboxes (keyboard and screen-reader friendly). */
+export function MultiSelect({
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+  value,
+  onChange,
+  options,
+  disabled,
+}: MultiSelectProps) {
+  const id = useId();
+  const toggle = (option: string, checked: boolean): void => {
+    onChange(checked ? [...value, option] : value.filter((item) => item !== option));
+  };
+  return (
+    <div className={fieldClassName === undefined ? 'prm-field' : `prm-field ${fieldClassName}`}>
+      <span className="prm-field-label" id={`${id}-label`}>
+        {label}
+        {required === true && (
+          <span className="prm-required" aria-hidden="true">
+            *
+          </span>
+        )}
+      </span>
+      <div
+        className="prm-multiselect"
+        role="group"
+        aria-labelledby={`${id}-label`}
+        aria-invalid={error !== undefined || undefined}
+        aria-describedby={describedBy(id, hint, error)}
+      >
+        {options.map((option) => (
+          <label key={option.value} className="prm-check">
+            <input
+              type="checkbox"
+              checked={value.includes(option.value)}
+              disabled={disabled === true || option.disabled === true}
+              onChange={(event) => toggle(option.value, event.target.checked)}
+            />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+      <FieldMessages id={id} hint={hint} error={error} />
+    </div>
+  );
+}
+
+export interface CheckboxProps {
+  readonly label: ReactNode;
+  readonly checked: boolean;
+  readonly onChange: (checked: boolean) => void;
+  readonly hint?: ReactNode;
+  readonly error?: string;
+  readonly disabled?: boolean;
+  readonly name?: string;
+  /** Keeps the label for screen readers only (compact table cells whose column header names the choice). */
+  readonly hideLabel?: boolean;
+}
+
+export function Checkbox({
+  label,
+  checked,
+  onChange,
+  hint,
+  error,
+  disabled,
+  name,
+  hideLabel = false,
+}: CheckboxProps) {
+  const id = useId();
+  return (
+    <div className="prm-field">
+      <label className="prm-check" htmlFor={id}>
+        <input
+          id={id}
+          name={name}
+          type="checkbox"
+          checked={checked}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.checked)}
+          aria-invalid={error !== undefined || undefined}
+          aria-describedby={describedBy(id, hint, error)}
+        />
+        <span className={hideLabel ? 'prm-visually-hidden' : undefined}>{label}</span>
+      </label>
+      <FieldMessages id={id} hint={hint} error={error} />
+    </div>
+  );
+}
+
+export interface RadioOption extends SelectOption {
+  readonly hint?: ReactNode;
+}
+
+export interface RadioGroupProps extends CommonFieldProps {
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly options: readonly RadioOption[];
+  readonly inline?: boolean;
+  readonly name?: string;
+}
+
+export function RadioGroup({
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+  value,
+  onChange,
+  options,
+  inline = false,
+  name,
+}: RadioGroupProps) {
+  const id = useId();
+  const groupName = name ?? id;
+  const classes = ['prm-radio-group'];
+  if (inline) classes.push('prm-radio-group--inline');
+  if (fieldClassName !== undefined) classes.push(fieldClassName);
+  return (
+    <fieldset
+      className={classes.join(' ')}
+      aria-invalid={error !== undefined || undefined}
+      aria-describedby={describedBy(id, hint, error)}
+    >
+      <legend id={`${id}-legend`}>
+        {label}
+        {required === true && (
+          <span className="prm-required" aria-hidden="true">
+            *
+          </span>
+        )}
+      </legend>
+      {/* aria-required is not allowed on a fieldset (role group), so the options carry it as a radiogroup named
+          by the legend; the fieldset keeps its group role and name. */}
+      <div
+        className="prm-radio-options"
+        role="radiogroup"
+        aria-labelledby={`${id}-legend`}
+        aria-required={required || undefined}
+      >
+        {options.map((option) => (
+          <label key={option.value} className="prm-check">
+            <input
+              type="radio"
+              name={groupName}
+              value={option.value}
+              checked={value === option.value}
+              disabled={option.disabled}
+              onChange={() => onChange(option.value)}
+            />
+            <span>
+              {option.label}
+              {option.hint !== undefined && <span className="prm-cell-sub">{option.hint}</span>}
+            </span>
+          </label>
+        ))}
+      </div>
+      <FieldMessages id={id} hint={hint} error={error} />
+    </fieldset>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Dates and times
+// ---------------------------------------------------------------------------------------------------------
+
+export interface DateInputProps extends CommonFieldProps {
+  /** `YYYY-MM-DD` or `''`. */
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly min?: string;
+  readonly max?: string;
+  readonly disabled?: boolean;
+}
+
+export function DateInput({ value, onChange, min, max, disabled, ...common }: DateInputProps) {
+  return (
+    <TextField
+      {...common}
+      type="date"
+      value={value}
+      onChange={onChange}
+      min={min}
+      max={max}
+      disabled={disabled}
+    />
+  );
+}
+
+export interface DateTimeInputProps extends CommonFieldProps {
+  /** A UTC instant (`2026-10-14T10:00:00Z`) or `null`. */
+  readonly value: string | null;
+  readonly onChange: (value: string | null) => void;
+  /** The OFFICIAL IANA zone the date and time are entered in (never the browser's). */
+  readonly timeZone: string;
+  readonly disabled?: boolean;
+}
+
+/**
+ * Date and time entered in an explicit official zone, shown beside the inputs as `(UTC+02:00) Africa/Gaborone`.
+ * The value is the corresponding UTC instant.
+ */
+export function DateTimeInput({
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+  value,
+  onChange,
+  timeZone,
+  disabled,
+}: DateTimeInputProps) {
+  const id = useId();
+  const initial = value === null ? { date: '', time: '' } : instantToWallTime(value, timeZone);
+  const [draft, setDraft] = useState(initial);
+  const [lastValue, setLastValue] = useState(value);
+  // Keep the draft in step when the parent replaces the value (derived state, updated during render).
+  if (value !== lastValue) {
+    setLastValue(value);
+    if (value !== null) {
+      const wall = instantToWallTime(value, timeZone);
+      if (wall.date !== draft.date || wall.time !== draft.time) {
+        setDraft(wall);
+      }
+    }
+  }
+  const zoneLabel = `(${officialTimeParts(value ?? new Date(0).toISOString(), timeZone).offset}) ${timeZone}`;
+
+  const update = (next: { date: string; time: string }): void => {
+    setDraft(next);
+    const instant = wallTimeToInstant(next, timeZone);
+    setLastValue(instant);
+    onChange(instant);
+  };
+
+  return (
+    <div className={fieldClassName === undefined ? 'prm-field' : `prm-field ${fieldClassName}`}>
+      <span className="prm-field-label" id={`${id}-label`}>
+        {label}
+        {required === true && (
+          <span className="prm-required" aria-hidden="true">
+            *
+          </span>
+        )}
+      </span>
+      <div className="prm-input-group" role="group" aria-labelledby={`${id}-label`}>
+        <input
+          type="date"
+          aria-label={t('ui.form.date')}
+          value={draft.date}
+          disabled={disabled}
+          required={required}
+          aria-invalid={error !== undefined || undefined}
+          aria-describedby={`${id}-zone ${describedBy(id, hint, error) ?? ''}`.trim()}
+          onChange={(event) => update({ ...draft, date: event.target.value })}
+        />
+        <input
+          type="time"
+          aria-label={t('ui.form.time')}
+          value={draft.time}
+          disabled={disabled}
+          required={required}
+          aria-invalid={error !== undefined || undefined}
+          aria-describedby={`${id}-zone`}
+          onChange={(event) => update({ ...draft, time: event.target.value })}
+        />
+        <span className="prm-input-addon" id={`${id}-zone`}>
+          {zoneLabel}
+        </span>
+      </div>
+      <FieldMessages id={id} hint={hint} error={error} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Numbers and money (decimal strings)
+// ---------------------------------------------------------------------------------------------------------
+
+/** Strips grouping separators and spaces the user may type: `1,500,000.50` → `1500000.50`. */
+function normalizeDecimalInput(raw: string): string {
+  return raw.replace(/[\s,]/g, '');
+}
+
+export interface NumberInputProps extends CommonFieldProps {
+  /** A decimal string or `''`. */
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  /** Maximum decimal places (0 = whole numbers). */
+  readonly places?: number;
+  readonly allowNegative?: boolean;
+  readonly disabled?: boolean;
+  readonly suffix?: string;
+}
+
+function decimalPattern(places: number, allowNegative: boolean): RegExp {
+  const sign = allowNegative ? '-?' : '';
+  const fraction = places > 0 ? `(\\.\\d{0,${places}})?` : '';
+  return new RegExp(`^${sign}\\d*${fraction}$`);
+}
+
+export function NumberInput({
+  value,
+  onChange,
+  places = 0,
+  allowNegative = false,
+  disabled,
+  suffix,
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+}: NumberInputProps) {
+  const id = useId();
+  const pattern = decimalPattern(places, allowNegative);
+  const accept = (raw: string): void => {
+    const cleaned = normalizeDecimalInput(raw);
+    if (cleaned === '' || pattern.test(cleaned)) {
+      onChange(cleaned);
+    }
+  };
+  const input = (
+    <input
+      id={id}
+      type="text"
+      inputMode={places > 0 ? 'decimal' : 'numeric'}
+      value={value}
+      disabled={disabled}
+      required={required}
+      aria-required={required || undefined}
+      aria-invalid={error !== undefined || undefined}
+      aria-describedby={describedBy(id, hint, error)}
+      onChange={(event) => accept(event.target.value)}
+      onBlur={() => {
+        if (value.endsWith('.')) onChange(value.slice(0, -1));
+      }}
+      className="prm-num"
+    />
+  );
+  return (
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      className={fieldClassName}
+    >
+      {suffix === undefined ? (
+        input
+      ) : (
+        <div className="prm-input-group">
+          {input}
+          <span className="prm-input-addon">{suffix}</span>
+        </div>
+      )}
+    </FieldShell>
+  );
+}
+
+export interface MoneyInputValue {
+  readonly amount: string;
+  readonly currency: string;
+}
+
+export interface MoneyInputProps extends CommonFieldProps {
+  readonly value: MoneyInputValue;
+  readonly onChange: (value: MoneyInputValue) => void;
+  /** Selectable currencies; a single entry shows it as fixed text. */
+  readonly currencies: readonly string[];
+  readonly disabled?: boolean;
+}
+
+/** Money entered as a decimal string (2 places) with its currency; never converted to a JS number. */
+export function MoneyInput({
+  value,
+  onChange,
+  currencies,
+  disabled,
+  label,
+  hint,
+  error,
+  required,
+  fieldClassName,
+}: MoneyInputProps) {
+  const id = useId();
+  const pattern = decimalPattern(2, false);
+  const onAmount = (raw: string): void => {
+    const cleaned = normalizeDecimalInput(raw);
+    if (cleaned === '' || pattern.test(cleaned)) {
+      onChange({ ...value, amount: cleaned });
+    }
+  };
+  return (
+    <FieldShell
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      className={fieldClassName}
+    >
+      <div className="prm-input-group">
+        {currencies.length > 1 ? (
+          <select
+            aria-label={t('ui.form.currency')}
+            value={value.currency}
+            disabled={disabled}
+            onChange={(event) => onChange({ ...value, currency: event.target.value })}
+          >
+            {currencies.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="prm-input-addon prm-input-addon--mono">{value.currency}</span>
+        )}
+        <input
+          id={id}
+          type="text"
+          inputMode="decimal"
+          className="prm-num"
+          value={value.amount}
+          disabled={disabled}
+          required={required}
+          aria-required={required || undefined}
+          aria-invalid={error !== undefined || undefined}
+          aria-describedby={describedBy(id, hint, error)}
+          onChange={(event) => onAmount(event.target.value)}
+          onBlur={() => {
+            if (value.amount.endsWith('.'))
+              onChange({ ...value, amount: value.amount.slice(0, -1) });
+          }}
+        />
+      </div>
+    </FieldShell>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Error summary
+// ---------------------------------------------------------------------------------------------------------
+
+export interface FormErrorSummaryProps {
+  /** A general message (the problem title), shown when the request failed. */
+  readonly title?: string | null;
+  /** Field errors that match no input (from `formErrors(...).other`). */
+  readonly errors?: readonly FieldError[];
+}
+
+/** The form-level error banner: the problem title plus any field error without a matching input. */
+export function FormErrorSummary({ title, errors = [] }: FormErrorSummaryProps) {
+  if ((title === null || title === undefined) && errors.length === 0) {
+    return null;
+  }
+  return (
+    <Banner tone="error" title={title ?? t('ui.form.errorTitle')}>
+      {errors.length > 0 && (
+        <ul>
+          {errors.map((item) => (
+            <li key={`${item.field}:${item.code}`}>
+              {item.field === '' ? item.message : `${item.field}: ${item.message}`}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Banner>
+  );
+}

@@ -1,0 +1,10 @@
+tenant_id,reserve_event_id,claim_id,event_at,old_amount,new_amount,reason
+TEST,RSV-CLM-101-1,CLM-101,2026-10-01,0,8000,Initial open reserve
+TEST,RSV-CLM-102-1,CLM-102,2026-09-01,0,15000,Initial open reserve
+TEST,RSV-CLM-103-1,CLM-103,2026-10-10,0,4000,Initial open reserve
+TEST,RSV-CLM-104-1,CLM-104,2026-10-15,0,9000,Initial open reserve
+TEST,RSV-CLM-105-1,CLM-105,2026-10-20,0,6000,Initial open reserve
+TEST,RSV-CLM-106-1,CLM-106,2026-09-25,0,30000,Initial open reserve
+TEST,RSV-CLM-101-2,CLM-101,2026-10-16,8000,11000,Additional repair scope
+TEST,RSV-CLM-102-2,CLM-102,2026-10-04,15000,12000,Partial settlement recognised
+TEST,RSV-CLM-103-2,CLM-103,2026-10-15,4000,0,Paid and closed

@@ -1,0 +1,3 @@
+tenant_id,request_id,claim_id,supplier_id,requested_at,completed_at,request_type
+DEMO,DREQ-016,DCLM-016,SUP-01,2026-10-01,,Assessment report
+DEMO,DREQ-028,DCLM-028,SUP-01,2026-10-01,,Assessment report
