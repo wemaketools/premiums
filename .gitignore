@@ -1,0 +1,13 @@
+ai/converse/conversations/*
+!ai/converse/conversations/workflow/
+ai/converse/conversations/workflow/*
+!ai/converse/conversations/workflow/workflow.json
+!ai/converse/conversations/workflow/checks.ts
+ai/converse/review/runs/
+
+# local
+.DS_Store
+.claude/settings.local.json
+
+# Vercel CLI state
+.vercel/

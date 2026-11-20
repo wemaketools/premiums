@@ -1,0 +1,7 @@
+{
+	"agent": "premiums",
+	"port": 5186,
+	"autoStart": true,
+	"dir": "ai/converse",
+	"repo": "wemaketools/premiums"
+}
